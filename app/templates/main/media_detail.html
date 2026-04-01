@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}{{ media.title }} – Smart Library{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('main.catalog') }}">Katalog</a></li>
+    <li class="breadcrumb-item active">{{ media.title }}</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <span class="badge
+        {% if media.category == 'book' %}bg-success
+        {% elif media.category == 'film' %}bg-warning text-dark
+        {% else %}bg-info text-dark{% endif %} fs-6">
+        <i class="bi {{ media.category_icon }} me-1"></i>{{ media.category_label }}
+      </span>
+    </div>
+    <h1>{{ media.title }}</h1>
+    <p class="lead text-muted">
+      <i class="bi bi-person me-1"></i>{{ media.creator }}
+      {% if media.published_year %}– {{ media.published_year }}{% endif %}
+    </p>
+    {% if media.isbn %}
+      <p class="text-muted small"><strong>ISBN:</strong> {{ media.isbn }}</p>
+    {% endif %}
+    {% if media.description %}
+      <p class="mt-3">{{ media.description }}</p>
+    {% endif %}
+  </div>
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body text-center">
+        <div class="mb-3">
+          {% if media.is_available %}
+            <span class="badge bg-success fs-6 p-2">
+              <i class="bi bi-check-circle me-1"></i>Verfügbar
+            </span>
+            <p class="text-muted mt-2 mb-0">
+              {{ media.available_copies }} von {{ media.total_copies }} Exemplar(en) verfügbar
+            </p>
+          {% else %}
+            <span class="badge bg-danger fs-6 p-2">
+              <i class="bi bi-x-circle me-1"></i>Nicht verfügbar
+            </span>
+            <p class="text-muted mt-2 mb-0">Alle Exemplare sind ausgeliehen.</p>
+          {% endif %}
+        </div>
+        {% if current_user.is_authenticated and not current_user.is_librarian %}
+          {% if media.is_available %}
+            {% if in_cart %}
+              <a href="{{ url_for('main.cart') }}" class="btn btn-success w-100">
+                <i class="bi bi-basket-check me-1"></i>Im Leihkorb
+              </a>
+            {% else %}
+              <form method="post" action="{{ url_for('main.cart_add', media_id=media.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary w-100">
+                  <i class="bi bi-basket-plus me-1"></i>In Leihkorb legen
+                </button>
+              </form>
+            {% endif %}
+          {% endif %}
+        {% elif not current_user.is_authenticated %}
+          <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary w-100">
+            <i class="bi bi-box-arrow-in-right me-1"></i>Anmelden zum Ausleihen
+          </a>
+        {% endif %}
+        <a href="{{ url_for('main.catalog') }}" class="btn btn-outline-secondary w-100 mt-2">
+          <i class="bi bi-arrow-left me-1"></i>Zurück zum Katalog
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

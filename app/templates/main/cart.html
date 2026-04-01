@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Leihkorb – Smart Library{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="bi bi-basket me-2"></i>Mein Leihkorb</h1>
+
+{% if items %}
+  <div class="card shadow-sm mb-4">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Kategorie</th>
+            <th>Titel</th>
+            <th>Autor / Regisseur</th>
+            <th>Verfügbarkeit</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+            <tr>
+              <td>
+                <span class="badge
+                  {% if item.media.category == 'book' %}bg-success
+                  {% elif item.media.category == 'film' %}bg-warning text-dark
+                  {% else %}bg-info text-dark{% endif %}">
+                  <i class="bi {{ item.media.category_icon }}"></i>
+                  {{ item.media.category_label }}
+                </span>
+              </td>
+              <td>
+                <a href="{{ url_for('main.media_detail', media_id=item.media.id) }}" class="text-decoration-none">
+                  {{ item.media.title }}
+                </a>
+              </td>
+              <td class="text-muted">{{ item.media.creator }}</td>
+              <td>
+                {% if item.media.is_available %}
+                  <span class="text-success"><i class="bi bi-check-circle me-1"></i>Verfügbar</span>
+                {% else %}
+                  <span class="text-danger"><i class="bi bi-x-circle me-1"></i>Nicht mehr verfügbar</span>
+                {% endif %}
+              </td>
+              <td>
+                <form method="post"
+                      action="{{ url_for('main.cart_remove', item_id=item.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-outline-danger btn-sm"
+                          title="Entfernen">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center">
+    <p class="mb-0 text-muted">
+      <i class="bi bi-info-circle me-1"></i>
+      Ausleihfrist: 14 Tage. Überziehungsgebühr: 0,50 € / Tag.
+    </p>
+    <form method="post" action="{{ url_for('main.cart_checkout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-success btn-lg">
+        <i class="bi bi-check2-circle me-1"></i>Alle ausleihen
+      </button>
+    </form>
+  </div>
+{% else %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-basket display-3 d-block mb-3"></i>
+    <p class="lead">Dein Leihkorb ist leer.</p>
+    <a href="{{ url_for('main.catalog') }}" class="btn btn-primary">
+      <i class="bi bi-search me-1"></i>Zum Katalog
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

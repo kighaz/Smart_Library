@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Mahngebühren – Bibliothekare{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="bi bi-cash-coin me-2"></i>Mahngebühren</h1>
+
+<h2 class="h5 mb-3 text-danger">
+  <i class="bi bi-exclamation-circle me-1"></i>Offene Gebühren
+  {% if unpaid %}
+    <span class="badge bg-danger">{{ unpaid|length }}</span>
+  {% endif %}
+</h2>
+
+{% if unpaid %}
+  <div class="table-responsive mb-5">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Nutzer</th>
+          <th>Medium</th>
+          <th>Fälligkeitstag</th>
+          <th>Überfällig (Tage)</th>
+          <th>Betrag</th>
+          <th>Aktion</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fine in unpaid %}
+          <tr class="table-danger">
+            <td>{{ fine.lending.user.username }}</td>
+            <td>{{ fine.lending.media.title }}</td>
+            <td>{{ fine.lending.due_date.strftime('%d.%m.%Y') }}</td>
+            <td>{{ fine.lending.overdue_days }}</td>
+            <td class="fw-bold">{{ '%.2f €'|format(fine.amount) }}</td>
+            <td>
+              <form method="post"
+                    action="{{ url_for('librarian.pay_fine', fine_id=fine.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-sm btn-success">
+                  <i class="bi bi-check-circle me-1"></i>Bezahlt
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p class="text-muted"><i class="bi bi-check-circle me-1 text-success"></i>Keine offenen Gebühren.</p>
+{% endif %}
+
+<h2 class="h5 mb-3 text-success mt-4">
+  <i class="bi bi-check-circle me-1"></i>Bezahlte Gebühren (letzte 50)
+</h2>
+
+{% if paid %}
+  <div class="table-responsive">
+    <table class="table table-sm table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Nutzer</th>
+          <th>Medium</th>
+          <th>Betrag</th>
+          <th>Bezahlt am</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fine in paid %}
+          <tr>
+            <td>{{ fine.lending.user.username }}</td>
+            <td>{{ fine.lending.media.title }}</td>
+            <td class="text-success">{{ '%.2f €'|format(fine.amount) }}</td>
+            <td>{{ fine.paid_at.strftime('%d.%m.%Y %H:%M') if fine.paid_at else '–' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p class="text-muted">Noch keine bezahlten Gebühren.</p>
+{% endif %}
+{% endblock %}

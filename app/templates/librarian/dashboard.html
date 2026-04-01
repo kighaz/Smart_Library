@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard – Bibliothekare{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="bi bi-speedometer2 me-2"></i>Bibliothekares-Dashboard</h1>
+
+<div class="row g-3 mb-5">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card text-bg-primary h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-collection display-5"></i>
+        <div>
+          <div class="fs-2 fw-bold">{{ total_media }}</div>
+          <div>Medien im Bestand</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card text-bg-success h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-people display-5"></i>
+        <div>
+          <div class="fs-2 fw-bold">{{ total_users }}</div>
+          <div>Registrierte Kunden</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card text-bg-warning h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-book display-5"></i>
+        <div>
+          <div class="fs-2 fw-bold">{{ active_lendings }}</div>
+          <div>Aktive Ausleihen</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card text-bg-danger h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <i class="bi bi-exclamation-triangle display-5"></i>
+        <div>
+          <div class="fs-2 fw-bold">{{ overdue }}</div>
+          <div>Überfällige Ausleihen</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <a href="{{ url_for('librarian.add_media') }}" class="card text-decoration-none text-dark hover-card h-100">
+      <div class="card-body text-center py-4">
+        <i class="bi bi-plus-circle-fill fs-1 text-primary mb-2 d-block"></i>
+        <h5>Medium hinzufügen</h5>
+        <p class="text-muted small mb-0">Neues Buch, Film oder Magazin eintragen</p>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="{{ url_for('librarian.returns') }}" class="card text-decoration-none text-dark hover-card h-100">
+      <div class="card-body text-center py-4">
+        <i class="bi bi-arrow-return-left fs-1 text-success mb-2 d-block"></i>
+        <h5>Rückgaben verwalten</h5>
+        <p class="text-muted small mb-0">Zurückgegebene Medien erfassen</p>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="{{ url_for('librarian.fines') }}" class="card text-decoration-none text-dark hover-card h-100">
+      <div class="card-body text-center py-4">
+        <i class="bi bi-cash-coin fs-1 text-danger mb-2 d-block"></i>
+        <h5>Mahngebühren</h5>
+        <p class="text-muted small mb-0">
+          {% if unpaid_fines > 0 %}
+            <span class="text-danger fw-bold">{{ unpaid_fines }} offene Gebühren</span>
+          {% else %}
+            Alle Gebühren bezahlt
+          {% endif %}
+        </p>
+      </div>
+    </a>
+  </div>
+</div>
+{% endblock %}
