@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Mein Konto – Smart Library{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">
+  <i class="bi bi-person-circle me-2"></i>Mein Konto
+  <small class="fs-5 text-muted ms-2">{{ current_user.username }}</small>
+</h1>
+
+{% if unpaid_fines %}
+  <div class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong>Offene Mahngebühren:</strong>
+    Du hast offene Gebühren von insgesamt
+    <strong>{{ '%.2f €'|format(current_user.total_fines) }}</strong>.
+    Bitte wende dich an die Bibliothek.
+  </div>
+{% endif %}
+
+<!-- Active Lendings -->
+<h2 class="h4 mt-4 mb-3">
+  <i class="bi bi-book-half me-2 text-primary"></i>Aktuell ausgeliehene Medien
+</h2>
+{% if active %}
+  <div class="table-responsive mb-4">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Kategorie</th>
+          <th>Titel</th>
+          <th>Ausgeliehen am</th>
+          <th>Fällig am</th>
+          <th>Status</th>
+          <th>Gebühren</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lending in active %}
+          <tr class="{% if lending.is_overdue %}table-danger{% endif %}">
+            <td>
+              <span class="badge
+                {% if lending.media.category == 'book' %}bg-success
+                {% elif lending.media.category == 'film' %}bg-warning text-dark
+                {% else %}bg-info text-dark{% endif %}">
+                <i class="bi {{ lending.media.category_icon }}"></i>
+                {{ lending.media.category_label }}
+              </span>
+            </td>
+            <td>
+              <a href="{{ url_for('main.media_detail', media_id=lending.media.id) }}"
+                 class="text-decoration-none">
+                {{ lending.media.title }}
+              </a>
+            </td>
+            <td>{{ lending.borrowed_date.strftime('%d.%m.%Y') }}</td>
+            <td>{{ lending.due_date.strftime('%d.%m.%Y') }}</td>
+            <td>
+              <span class="badge bg-{{ lending.status_class }}">
+                {{ lending.status_label }}
+              </span>
+              {% if lending.is_overdue %}
+                <small class="text-danger d-block">
+                  {{ lending.overdue_days }} Tag(e) überfällig
+                </small>
+              {% endif %}
+            </td>
+            <td>
+              {% set fine_amount = lending.fines.filter_by(paid=False).first() %}
+              {% if fine_amount %}
+                <span class="text-danger fw-bold">{{ '%.2f €'|format(fine_amount.amount) }}</span>
+              {% else %}
+                <span class="text-muted">–</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p class="text-muted">
+    <i class="bi bi-info-circle me-1"></i>Du hast derzeit keine ausgeliehenen Medien.
+  </p>
+{% endif %}
+
+<!-- Borrow History -->
+<h2 class="h4 mt-4 mb-3">
+  <i class="bi bi-clock-history me-2 text-secondary"></i>Ausleihhistorie
+</h2>
+{% if history %}
+  <div class="table-responsive">
+    <table class="table table-sm table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Titel</th>
+          <th>Ausgeliehen am</th>
+          <th>Fällig am</th>
+          <th>Zurückgegeben am</th>
+          <th>Gebühren</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lending in history %}
+          <tr>
+            <td>
+              <a href="{{ url_for('main.media_detail', media_id=lending.media.id) }}"
+                 class="text-decoration-none">
+                {{ lending.media.title }}
+              </a>
+            </td>
+            <td>{{ lending.borrowed_date.strftime('%d.%m.%Y') }}</td>
+            <td>{{ lending.due_date.strftime('%d.%m.%Y') }}</td>
+            <td>{{ lending.returned_date.strftime('%d.%m.%Y') }}</td>
+            <td>
+              {% set paid_fine = lending.fines.filter_by(paid=True).first() %}
+              {% if paid_fine %}
+                <span class="text-success">{{ '%.2f €'|format(paid_fine.amount) }} bezahlt</span>
+              {% else %}
+                <span class="text-muted">–</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p class="text-muted">
+    <i class="bi bi-info-circle me-1"></i>Keine abgeschlossenen Ausleihen vorhanden.
+  </p>
+{% endif %}
+
+<div class="mt-4">
+  <a href="{{ url_for('main.catalog') }}" class="btn btn-primary">
+    <i class="bi bi-search me-1"></i>Zum Katalog
+  </a>
+  <a href="{{ url_for('main.cart') }}" class="btn btn-outline-primary ms-2">
+    <i class="bi bi-basket me-1"></i>Leihkorb
+  </a>
+</div>
+{% endblock %}

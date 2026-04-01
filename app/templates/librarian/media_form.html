@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} – Smart Library{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('librarian.media_list') }}">Bestand</a></li>
+    <li class="breadcrumb-item active">{{ title }}</li>
+  </ol>
+</nav>
+
+<h1 class="mb-4">{{ title }}</h1>
+
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <form method="post">
+          {{ form.hidden_tag() }}
+
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">{{ form.title.label.text }}</label>
+              {{ form.title(class='form-control' + (' is-invalid' if form.title.errors else '')) }}
+              {% for e in form.title.errors %}
+                <div class="invalid-feedback">{{ e }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ form.category.label.text }}</label>
+              {{ form.category(class='form-select' + (' is-invalid' if form.category.errors else '')) }}
+              {% for e in form.category.errors %}
+                <div class="invalid-feedback">{{ e }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="col-md-8">
+              <label class="form-label">{{ form.creator.label.text }}</label>
+              {{ form.creator(class='form-control' + (' is-invalid' if form.creator.errors else '')) }}
+              {% for e in form.creator.errors %}
+                <div class="invalid-feedback">{{ e }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">{{ form.published_year.label.text }}</label>
+              {{ form.published_year(class='form-control' + (' is-invalid' if form.published_year.errors else '')) }}
+              {% for e in form.published_year.errors %}
+                <div class="invalid-feedback">{{ e }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">{{ form.isbn.label.text }}</label>
+              {{ form.isbn(class='form-control' + (' is-invalid' if form.isbn.errors else '')) }}
+              {% for e in form.isbn.errors %}
+                <div class="invalid-feedback">{{ e }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ form.total_copies.label.text }}</label>
+              {{ form.total_copies(class='form-control' + (' is-invalid' if form.total_copies.errors else '')) }}
+              {% for e in form.total_copies.errors %}
+                <div class="invalid-feedback">{{ e }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">{{ form.description.label.text }}</label>
+              {{ form.description(class='form-control', rows=4) }}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">{{ form.cover_url.label.text }}</label>
+              {{ form.cover_url(class='form-control', placeholder='https://…') }}
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+              {{ form.submit(class='btn btn-primary') }}
+              <a href="{{ url_for('librarian.media_list') }}" class="btn btn-outline-secondary">
+                Abbrechen
+              </a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Anmelden – Smart Library{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h2 class="card-title mb-4 text-center">
+          <i class="bi bi-box-arrow-in-right me-2 text-primary"></i>Anmelden
+        </h2>
+        <form method="post">
+          {{ form.hidden_tag() }}
+          <div class="mb-3">
+            {{ form.username.label(class='form-label') }}
+            {{ form.username(class='form-control' + (' is-invalid' if form.username.errors else '')) }}
+            {% for e in form.username.errors %}
+              <div class="invalid-feedback">{{ e }}</div>
+            {% endfor %}
+          </div>
+          <div class="mb-3">
+            {{ form.password.label(class='form-label') }}
+            {{ form.password(class='form-control' + (' is-invalid' if form.password.errors else '')) }}
+            {% for e in form.password.errors %}
+              <div class="invalid-feedback">{{ e }}</div>
+            {% endfor %}
+          </div>
+          <div class="d-grid">
+            {{ form.submit(class='btn btn-primary') }}
+          </div>
+        </form>
+        <hr>
+        <p class="text-center mb-0">
+          Noch kein Konto?
+          <a href="{{ url_for('auth.register') }}">Jetzt registrieren</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

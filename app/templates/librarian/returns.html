@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Rückgaben – Bibliothekare{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="bi bi-arrow-return-left me-2"></i>Rückgaben verwalten</h1>
+
+{% if lendings %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Kategorie</th>
+          <th>Titel</th>
+          <th>Nutzer</th>
+          <th>Ausgeliehen</th>
+          <th>Fällig</th>
+          <th>Status</th>
+          <th>Aktion</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lending in lendings %}
+          <tr class="{% if lending.is_overdue %}table-danger{% endif %}">
+            <td>
+              <span class="badge
+                {% if lending.media.category == 'book' %}bg-success
+                {% elif lending.media.category == 'film' %}bg-warning text-dark
+                {% else %}bg-info text-dark{% endif %}">
+                {{ lending.media.category_label }}
+              </span>
+            </td>
+            <td>{{ lending.media.title }}</td>
+            <td>{{ lending.user.username }}</td>
+            <td>{{ lending.borrowed_date.strftime('%d.%m.%Y') }}</td>
+            <td>{{ lending.due_date.strftime('%d.%m.%Y') }}</td>
+            <td>
+              <span class="badge bg-{{ lending.status_class }}">
+                {{ lending.status_label }}
+              </span>
+              {% if lending.is_overdue %}
+                <small class="text-danger d-block">
+                  {{ lending.overdue_days }} Tag(e) überfällig
+                </small>
+              {% endif %}
+            </td>
+            <td>
+              <form method="post"
+                    action="{{ url_for('librarian.process_return', lending_id=lending.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-sm btn-success">
+                  <i class="bi bi-check-circle me-1"></i>Rückgabe
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-check2-all display-3 d-block mb-3"></i>
+    <p class="lead">Alle Medien sind zurückgegeben.</p>
+  </div>
+{% endif %}
+{% endblock %}
